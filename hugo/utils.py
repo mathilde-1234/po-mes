@@ -68,13 +68,13 @@ def simplify_vowels(v):
 
 VOYELLES = "aeiouyàâäéèêëîïôöùûüÿœ"
 
-def terminaison_phonetique(vers: str) -> :
+def terminaison_phonetique(vers: str) -> str:
     vers = nettoyer_vers(vers) # Virer les spec cars
     if not vers:
         return "" # Ne pas traiter les vers qi sonnt "vides"
-    vers = re.sub(r"(e?s?|ent)$", "", vers) 
+    vers = re.sub(r"(e?s?|ent)$", "", vers) # Virer les lettres ùmuettes
     m = re.search(r"[{}]+[^{}]*$".format(VOYELLES, VOYELLES), vers)
-    # Je ne sais plus exactment mais ces deux lignes sont importantes
+    # Je ne sais plus exactment mais cette ligne importante
     if m:
         end = m.group(0)
         m2 = re.match(r"([{}]+)(.*)".format(VOYELLES), end)
@@ -85,11 +85,18 @@ def terminaison_phonetique(vers: str) -> :
         return end
     return vers[-3:] # Renvoie la terminaison des vers
 
-def rime_proche(x, y, seuil=0.6):
-    return sequence_matcher(x, y) >= seuil
 
 
 def rimes(poem_data) -> list:
+    """
+    In: poem_data:dict (poem data)
+    Out: res:list
+
+    List containing all rimes
+    """
+    def rime_proche(x, y, seuil=0.6):
+        return sequence_matcher(x, y) >= seuil
+
     res = []
     for strophe in poem_data["content"]:
         term = [terminaison_phonetique(v) for v in strophe]
@@ -109,6 +116,10 @@ def rimes(poem_data) -> list:
     return res
 
 def rime_finale(sch:list) -> str:
+    """
+    In: sch:list (quantité de rimes par rime dans un texte)
+    Out: max(total,key=total.get) (Rime la plus représentée (except "non reconnu"))
+    """
     total = {}
     for i in sch:
         if i not in total:

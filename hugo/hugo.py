@@ -1,44 +1,52 @@
 import json
-import utils
+from utils import rime_finale, rimes, get_title
 
-def get_poem_data(poem_id):
+def get_poem_data(poem_id) -> dict:
     with open(f"contemplations/{poem_id}.json", encoding="utf-8") as f:
         data = json.load(f)
     return data
 
-def afficher_poeme(poem_id):
+def afficher_poeme(poem_id:str,higlight:str) -> None:
     with open(f"contemplations/{poem_id}.json", encoding="utf-8") as f:
         data = json.load(f)
-    print(utils.get_title(data["name"]))
+    print(get_title(data["name"]))
     for strophe in data["content"]:
-        print()
         for vers in strophe:
+            vers:str = vers.replace(higlight+" ",f"\x1b[101m{higlight}\x1b[0m ")
             print(vers)
 
-def occurrence(poem_id, mot):
-    mot = mot.lower()
+def occurrence(poem_id:str, mot:str) -> int:
     with open(f"contemplations/{poem_id}.json", encoding="utf-8") as f:
         data = json.load(f)
+    mot = mot.lower()
     n = 0
     for strophe in data["content"]:
         for vers in strophe:
             for word in vers.lower().split():
                 if word != mot:continue
                 n += 1
-    presence = data["name"] if n>0 else None
-    return n,presence
+    return n
 
-def occurence_totale(mot):
-    res = 0
+def occurence_totale(mot) -> int:
+
+
+    mot = mot.lower()
+    n = 0
     for livre in range(1,7):
         for poeme in range(1,29):
             try:
-                occ,title = occurrence(f"{livre}/P{poeme}",mot)
-                print(title)
-                res+=occ
+                with open(f"contemplations/{livre}∕P{poeme}.json", encoding="utf-8") as f:
+                    data = json.load(f)
+                for strophe in data["content"]:
+                    for vers in strophe:
+                        for word in vers.lower().split():
+                            if word != mot:continue
+                            n += 1
+                if n>0:
+                    print(data["name"])                
             except:
                 ...
-    return res
+    return n
 
 def occurence_titre(mot):
     mot = mot.lower()
@@ -57,10 +65,13 @@ def occurence_titre(mot):
                 ...
     return n
 
-# afficher_poeme("1/P1")
-# print(occurrence("1/P1", "ne"))
-# rimes = utils.rimes(get_poem_data("1/P1"))
-# print(utils.rime_finale(rimes))*
+
+
+afficher_poeme("1/P1","le")
+print(occurrence("1/P1", "le"))
+
+# rimes = rimes(get_poem_data("1/P5"))
+# print(rime_finale(rimes))
 
 # print(occurence_totale("dieu"))
-print(occurence_titre("Le"))
+# print(occurence_titre("Le"))
