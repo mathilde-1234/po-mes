@@ -2,11 +2,17 @@ import json
 from utils import rime_finale, rimes, get_title
 
 def get_poem_data(poem_id) -> dict:
+    """
+    Prends le "poeme_id:str" et renvoie un dictionnaire connetenant toutes ses informations. (voir format dans la DB)
+    """
     with open(f"contemplations/{poem_id}.json", encoding="utf-8") as f:
         data = json.load(f)
     return data
 
 def afficher_poeme(poem_id:str,higlight:str) -> None:
+    """
+    Affiche le poeme avec son titre en ASCII art et les higlights en rouge en utilisant des codes ANSI ESCAPE
+    """
     with open(f"contemplations/{poem_id}.json", encoding="utf-8") as f:
         data = json.load(f)
     print(get_title(data["name"]))
@@ -16,6 +22,9 @@ def afficher_poeme(poem_id:str,higlight:str) -> None:
             print(vers)
 
 def occurrence(poem_id:str, mot:str) -> int:
+    """
+    Renvoie un int "n:int" représentant la quantité de fois que le mot "mot:str" apparait dans "poem_id:dtr" le poeme
+    """
     with open(f"contemplations/{poem_id}.json", encoding="utf-8") as f:
         data = json.load(f)
     mot = mot.lower()
@@ -28,8 +37,7 @@ def occurrence(poem_id:str, mot:str) -> int:
     return n
 
 def occurence_totale(mot) -> int:
-
-
+    "Cherche toute la DB pour un certain mot, print tout les poemes ayant le mot et renvoie la quantité de mots trouvés."
     mot = mot.lower()
     n = 0
     for livre in range(1,7):
@@ -49,6 +57,9 @@ def occurence_totale(mot) -> int:
     return n
 
 def occurence_titre(mot):
+    """
+    Print tous les titres contenant un certain mot dans leur titre et renvoie la quantité de mots découvets dans les titres.
+    """
     mot = mot.lower()
     with open(f"contemplations/contemplations.json", encoding="utf-8") as f:
         data = json.load(f)
@@ -65,13 +76,21 @@ def occurence_titre(mot):
                 ...
     return n
 
+# EXEMPLE D'UTILISATION
+if __name__ == "__main__":
+    keyword = "le"
+    poeme = "1/P1"
 
+    # Afficher le poeme avec higlight  et titre puis donner la quantité de keywordss toruvés.
+    afficher_poeme(poeme,keyword)
+    print(f'il y as {occurrence("1/P1", keyword)} fois le mot {keyword} dans le poème "{poeme}"')
 
-afficher_poeme("1/P1","le")
-print(occurrence("1/P1", "le"))
+    # Afficher la construction du poeme (le type de ryme qu'il utilise)
+    # rimes = rimes(get_poem_data("1/P5"))
+    # print(rime_finale(rimes))
 
-# rimes = rimes(get_poem_data("1/P5"))
-# print(rime_finale(rimes))
+    # Chercherr dans tous les poemes le mot "dieu"
+    # print(occurence_totale("dieu"))
 
-# print(occurence_totale("dieu"))
-# print(occurence_titre("Le"))
+    # Cherhcer dans tous les titres le mot "le"
+    # print(occurence_titre("Le"))
