@@ -1,13 +1,10 @@
 import requests
 import re
-
 API_GATEWAY = "https://asciified.thelicato.io/api/v2/"
-
 def get_title(text: str, font: str = "Pagga") -> str:
     """
     In : text:str, font:str (="Pagga")
     Out : title_str:str
-
     Simple util for generating ascii titles using an external web api
     """
     text = text.strip().replace(" ", "+") # Mets au format web de l'api
@@ -15,13 +12,11 @@ def get_title(text: str, font: str = "Pagga") -> str:
     r = requests.get(url) # Envoie requete
     r.raise_for_status() # Raise le status
     return r.text # Renvoie le titre
-
 def sequence_matcher(a: str, b: str) -> float:
     """
     In : a:str, b:str
     Out : float
     Compares two strings and returns a float represening their similarity
-
     # Algo de comparaison de strs par recursion
     # ratcliff-obershelp-string-similarity
     # On peut rempalcer par une comparaison simple (a == b)
@@ -38,18 +33,14 @@ def sequence_matcher(a: str, b: str) -> float:
                 dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
     lcs = dp[m][n]
     return (2 * lcs) / (m + n) if (m + n) > 0 else 1.0
-
-    
-
 def nettoyer_vers(vers: str):
     vers = vers.lower().strip()
-    ponctuation = ",;.!?«»\":()'’…-—"
+    ponctuation = ",;.!?«»\":()''…-—"
     s = ""
     for c in vers:
         if c not in ponctuation:
             s += c
     return s
-
 SIMPLY_DICT = {
     "é": "E", "er": "E", "ez": "E", "et": "E", "ée": "E", "ees": "E",
     "ait": "E", "ais": "E", "aient": "E",
@@ -62,12 +53,9 @@ SIMPLY_DICT = {
     "o": "O", "ot": "O", "aut": "O", "eau": "O",
     "u": "Y", "ue": "Y", "ues": "Y", "ieux": "Y", "ieu": "Y"
 }
-
 def simplify_vowels(v):
     return SIMPLY_DICT[v] if v in SIMPLY_DICT else v
-
 VOYELLES = "aeiouyàâäéèêëîïôöùûüÿœ"
-
 def terminaison_phonetique(vers: str) -> str:
     vers = nettoyer_vers(vers) # Virer les spec cars
     if not vers:
@@ -84,19 +72,14 @@ def terminaison_phonetique(vers: str) -> str:
             return simplify_vowels(v) + c
         return end
     return vers[-3:] # Renvoie la terminaison des vers
-
-
-
 def rimes(poem_data) -> list:
     """
     In: poem_data:dict (poem data)
     Out: res:list
-
     List containing all rimes
     """
     def rime_proche(x, y, seuil=0.6):
         return sequence_matcher(x, y) >= seuil
-
     res = []
     for strophe in poem_data["content"]:
         term = [terminaison_phonetique(v) for v in strophe]
@@ -114,7 +97,6 @@ def rimes(poem_data) -> list:
             sch = "non reconnu"
         res.append(sch)
     return res
-
 def rime_finale(sch:list) -> str:
     """
     In: sch:list (quantité de rimes par rime dans un texte)
@@ -126,9 +108,7 @@ def rime_finale(sch:list) -> str:
             total[i]=1
         else:
             total[i]+=1
-    
     total["non reconnu"]=0
     print(total)
     return max(total,key=total.get)
     # Erreur syntaxique de l'IDE mais fonctionne qd même
-
